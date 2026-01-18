@@ -3,12 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="styles.css" rel="stylesheet">
-    <script src="script.js"></script>
+    <link href="assets/css/style.css" rel="stylesheet">
+    <script src="assets/js/script.js"></script>
     <title>Minesweeper Game</title>
-    <button onclick="reset()" >Reset Game</button>
 </head>
 <body>
-    
+    <div id="game-container">
+        <h1>Minesweeper</h1>
+        <div class="grid">
+            <!-- The grid cells will be dynamically generated here -->
+        </div>
+        <div id="minesweeper-board"></div>
+        <div id="game-status">
+            <span id="mines-count">Mines: 10</span>
+            <span id="timer">Time: 0s</span>
+        </div>
+        <button id="reset-button">Reset Game</button>
+    </div>
 </body>
 </html>
