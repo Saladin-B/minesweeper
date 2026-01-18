@@ -3,6 +3,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const width = 10;
     let bombsAmount = 20;
     let squares = [];
+    
+    let darkmode = localStorage.getItem('darkmode');
+    const themeSwitch = document.getElementById('theme-switch');
+    
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        document.body.classList.add('darkmode');
+    }
+    
+    // Toggle theme on button click
+    themeSwitch.addEventListener('click', () => {
+        document.body.classList.toggle('darkmode');
+        const currentTheme = document.body.classList.contains('darkmode') ? 'dark' : 'light';
+        localStorage.setItem('theme', currentTheme);
+    });
+
+    const enableDarkMode = () => {
+        document.body.classList.add('darkmode');
+        localStorage.setItem('darkmode', 'active');
+        darkmode = 'active';
+    }
+
+    const disableDarkMode = () => {
+        document.body.classList.remove('darkmode');
+        localStorage.setItem('darkmode', null);
+        darkmode = 'inactive';
+    }
+
+    if (darkmode === 'active') enableDarkMode();
+
+    themeSwitch.addEventListener('click', () => {
+        darkmode !== "active" ? enableDarkMode() : disableDarkMode();
+        darkmode = localStorage.getItem('darkmode');
+    });
 
     // Create Board
     function createBoard() {
@@ -17,6 +52,18 @@ document.addEventListener('DOMContentLoaded', () => {
             square.classList.add(shuffledArray[i])
             grid.appendChild(square);
             squares.push(square);
+        }
+        //add numbers
+        for (let i = 0; i < squares.length; i++) {
+            let total = 0;
+            const isLeftEdge = (i % width === 0);
+            const isRightEdge = (i % width === width - 1);
+
+            if (squares[i].classList.contains('valid')) {
+                if ( i > 0 && !isLeftEdge && squares[i -1].classList.contains('bomb')) total ++;
+                if ( i > 9 && !isRightEdge && squares[i +1 -width].classList.contains('bomb')) total ++;
+                squares[i].setAttribute('data', total);
+            }
         }
     }
 

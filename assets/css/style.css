@@ -1,16 +1,85 @@
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --grid-bg: #cccccc;
+    --cell-bg: #e0e0e0;
+    --cell-border: #999999;
+    --bomb-color: #ff6b6b;
+    --valid-color: #90ee90;
+    --button-bg: #e0e0e0;
+    --button-text: #333333;
+    --header-bg: #f5f5f5;
+}
+
+.darkmode {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --grid-bg: #333333;
+    --cell-bg: #444444;
+    --cell-border: #555555;
+    --bomb-color: #ff4444;
+    --valid-color: #66bb6a;
+    --button-bg: #333333;
+    --button-text: #e0e0e0;
+    --header-bg: #0d0d0d;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+header {
+    background-color: var(--header-bg);
+}
+
 .grid{
-height: 400px;
-width: 400px;
-display: flex;
-flex-wrap: wrap;
-background-color: grey;
+    background-color: var(--grid-bg);
+    height: 400px;
+    width: 400px;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: grey;
 }
 
 .grid div {
-height: 40px;
-width: 40px;
+    height: 40px;
+    width: 40px;
 }
 
 .bomb {
     background-color: orange;
+}
+
+#theme-switch {
+    background: var(--base-variant);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px;
+    height: 50px;
+    width: 50px;
+}
+
+#theme-switch svg {
+    fill: var(--primary-color);
+}
+
+#theme-switch svg:last-child {
+    display: none;
+}
+
+.darkmode #theme-switch svg:first-child {
+    display: none;
+}
+
+.darkmode #theme-switch svg:last-child {
+    display: block;
 }
