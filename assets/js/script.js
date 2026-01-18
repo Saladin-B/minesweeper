@@ -126,11 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (total !== 0) {
             square.classList.add('checked');
             square.textContent = total;
+            checkForWin();
             return;
         }
 
         square.classList.add('checked');
         checkSquare(Number(square.getAttribute('id')));
+        checkForWin();
     }
 
     function checkSquare(currentId) {
@@ -160,16 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // check for win
     function checkForWin() {
-        let matches = 0;
-        for (let i = 0; i < squares.length; i++) {
-            if (squares[i].classList.contains('flag') && squares[i].classList.contains('bomb')) {
-                matches++;
-            }
-            if (matches === bombsAmount) {
-                stopTimer();
-                alert('You win!');
-                isGameOver = true;
-            }
+        if (isGameOver) return;
+
+        // Count all valid (non-bomb) squares that are checked
+        const totalValid = squares.filter(sq => sq.classList.contains('valid')).length;
+        const checkedValid = squares.filter(sq => sq.classList.contains('valid') && sq.classList.contains('checked')).length;
+
+        // Win if all non-bomb squares are revealed
+        if (checkedValid === totalValid) {
+            isGameOver = true;
+            stopTimer();
+            alert('Congratulations! You win!');
         }
     }
 
@@ -189,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 square.innerHTML = '🚩';
                 flags++;
                 updateMinesCount();
-                checkForWin();
             } else {
                 square.classList.remove('flag');
                 square.innerHTML = '';
