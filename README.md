@@ -6,7 +6,7 @@ A classic browser-based **Minesweeper** game built with HTML, CSS, and JavaScrip
 
 ## Live Site
 
-[Live link to deployed Minesweeper game](https://saladin-b.github.io/minesweeper/) <!-- Replace with your actual deployed site URL if different -->
+[Live link to deployed Minesweeper game](https://github.com/Saladin-B/minesweeper/deployments/github-pages) <!-- Replace with your actual deployed site URL if different -->
 
 ---
 
@@ -148,6 +148,7 @@ This project may contain code and/or written content assisted by **GitHub Copilo
 
 **Owner:** [Saladin-B](https://github.com/Saladin-B)  
 **Repository:** [minesweeper](https://github.com/Saladin-B/minesweeper)
+
 
 
 
