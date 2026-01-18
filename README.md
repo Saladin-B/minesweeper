@@ -135,7 +135,8 @@ Please report any bugs via the **GitHub Issues** section in this repository.
 - **Icons / Graphics**:
 - custom SVGs:
   fonts.google.com/icons
-*(Update this section with any assets, tutorials, or libraries you actually used.)*
+
+- (Update this section with any assets, tutorials, or libraries you actually used.)*
 
 ---
 
@@ -147,5 +148,6 @@ This project may contain code and/or written content assisted by **GitHub Copilo
 
 **Owner:** [Saladin-B](https://github.com/Saladin-B)  
 **Repository:** [minesweeper](https://github.com/Saladin-B/minesweeper)
+
 
 
