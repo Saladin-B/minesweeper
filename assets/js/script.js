@@ -8,6 +8,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const themeSwitch = document.getElementById('theme-switch');
     const resetButton = document.getElementById('reset-button');
+    const timerDisplay = document.getElementById('timer');
+    const minesCountDisplay = document.getElementById('mines-count');
+
+    let timerInterval = null;
+    let timerStart = null;
+    let timerRunning = false;
+
+    const updateMinesCount = () => {
+        if (minesCountDisplay) {
+            minesCountDisplay.textContent = `Mines: ${bombsAmount - flags}`;
+        }
+    };
+
+    const resetTimer = () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerStart = null;
+        timerRunning = false;
+        if (timerDisplay) timerDisplay.textContent = 'Time: 0s';
+    };
+
+    const updateTimer = () => {
+        if (!timerDisplay || !timerStart) return;
+        const seconds = Math.floor((Date.now() - timerStart) / 1000);
+        timerDisplay.textContent = `Time: ${seconds}s`;
+    };
+
+    const startTimer = () => {
+        if (timerRunning) return;
+        timerStart = Date.now();
+        timerRunning = true;
+        timerInterval = setInterval(updateTimer, 1000);
+    };
+
+    const stopTimer = () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerRunning = false;
+    };
 
     // apply saved theme
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -26,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         squares = [];
         flags = 0;
         isGameOver = false;
+        resetTimer();
+        updateMinesCount();
 
         const bombsArray = Array(bombsAmount).fill('bomb');
         const emptyArray = Array(width * width - bombsAmount).fill('valid');
@@ -72,6 +113,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function click(square) {
         if (isGameOver) return;
         if (square.classList.contains('checked') || square.classList.contains('flag')) return;
+
+        // start timer on first valid click
+        startTimer();
+
         if (square.classList.contains('bomb')) {
             gameOver();
             return;
@@ -121,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 matches++;
             }
             if (matches === bombsAmount) {
+                stopTimer();
                 alert('You win!');
                 isGameOver = true;
             }
@@ -129,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function gameOver() {
         isGameOver = true;
+        stopTimer();
         alert('Game Over! You hit a bomb.');
         revealBombs();
     }
@@ -141,16 +188,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 square.classList.add('flag');
                 square.innerHTML = '🚩';
                 flags++;
+                updateMinesCount();
                 checkForWin();
             } else {
                 square.classList.remove('flag');
                 square.innerHTML = '';
                 flags--;
+                updateMinesCount();
             }
         }
     }
 
     function resetGame() {
+        stopTimer();
+        resetTimer();
         createBoard();
     }
 

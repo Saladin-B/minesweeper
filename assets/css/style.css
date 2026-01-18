@@ -4,7 +4,7 @@
     --grid-bg: #cccccc;
     --cell-bg: #e0e0e0;
     --cell-border: #999999;
-    --bomb-color: #ff6b6b;
+    --bomb-color: #e0e0e0;
     --valid-color: #90ee90;
     --button-bg: #e0e0e0;
     --button-text: #333333;
@@ -17,48 +17,149 @@
     --grid-bg: #333333;
     --cell-bg: #444444;
     --cell-border: #555555;
-    --bomb-color: #ff4444;
+    --bomb-color: #444444;
     --valid-color: #66bb6a;
     --button-bg: #333333;
     --button-text: #e0e0e0;
     --header-bg: #0d0d0d;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
     transition: background-color 0.3s, color 0.3s;
 }
 
 header {
-    background-color: var(--header-bg);
+    width: 100%;
+    background-color: transparent;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 
-.grid{
-    background-color: var(--grid-bg);
-    height: 400px;
-    width: 400px;
+#game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: 500px;
+    width: 100%;
+    z-index: 1;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.grid {
+    width: 100%;
+    aspect-ratio: 1;
+    max-width: 400px;
     display: flex;
     flex-wrap: wrap;
-    background-color: grey;
+    background-color: var(--grid-bg);
+    border: 2px solid var(--cell-border);
 }
 
 .grid div {
-    height: 40px;
-    width: 40px;
+    flex: 1 0 10%;
+    aspect-ratio: 1;
+    background-color: var(--cell-bg);
+    border: 1px solid var(--cell-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    user-select: none;
 }
 
-.checked{
-    background-color: red;
+.grid div:hover {
+    opacity: 0.9;
 }
 
-.bomb {
-    background-color: orange;
+.grid div.checked {
+    background-color: var(--valid-color);
+}
+
+.grid div.bomb {
+    background-color: var(--bomb-color);
+}
+
+.grid div.bomb.checked {
+    background-color: var(--bomb-color);
+}
+
+.grid div.flag {
+    background-color: var(--cell-bg);
+    font-size: 1.2rem;
+}
+
+#game-status {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 400px;
+    font-size: 1rem;
+    gap: 20px;
+}
+
+#game-status span {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background-color: var(--cell-bg);
+    border-radius: 5px;
+    border: 1px solid var(--cell-border);
+}
+
+button {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: 2px solid var(--cell-border);
+    padding: 12px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+button:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+#reset-button {
+    width: 100%;
+    max-width: 400px;
 }
 
 #theme-switch {
-    background: var(--base-variant);
-    border: none;
+    background-color: var(--button-bg);
+    border: 2px solid var(--cell-border);
     border-radius: 50%;
     cursor: pointer;
     position: fixed;
@@ -67,13 +168,21 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0px;
+    padding: 0;
     height: 50px;
     width: 50px;
+    transition: all 0.3s;
+    z-index: 100;
+}
+
+#theme-switch:hover {
+    transform: scale(1.1);
 }
 
 #theme-switch svg {
-    fill: var(--primary-color);
+    fill: var(--text-color);
+    width: 24px;
+    height: 24px;
 }
 
 #theme-switch svg:last-child {
@@ -86,4 +195,179 @@ header {
 
 .darkmode #theme-switch svg:last-child {
     display: block;
+}
+
+/* Tablet and medium screens (768px and below) */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    #game-container {
+        max-width: 100%;
+        padding: 0 10px;
+        gap: 15px;
+    }
+
+    .grid {
+        max-width: 350px;
+    }
+
+    .grid div {
+        font-size: 0.8rem;
+    }
+
+    #game-status {
+        max-width: 350px;
+        font-size: 0.9rem;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Mobile screens (600px and below) */
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        margin-top: 70px;
+    }
+
+    #game-container {
+        gap: 12px;
+    }
+
+    .grid {
+        max-width: 300px;
+    }
+
+    .grid div {
+        font-size: 0.75rem;
+    }
+
+    #game-status {
+        max-width: 300px;
+        font-size: 0.85rem;
+        gap: 10px;
+    }
+
+    #game-status span {
+        padding: 8px;
+    }
+
+    button {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+
+    #reset-button {
+        max-width: 300px;
+    }
+
+    #theme-switch {
+        width: 45px;
+        height: 45px;
+        top: 15px;
+        right: 15px;
+    }
+
+    #theme-switch svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* Small mobile screens (480px and below) */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-top: 70px;
+    }
+
+    #game-container {
+        gap: 10px;
+        max-width: 100%;
+    }
+
+    .grid {
+        max-width: 250px;
+    }
+
+    .grid div {
+        font-size: 0.65rem;
+    }
+
+    #game-status {
+        max-width: 250px;
+        flex-direction: column;
+        font-size: 0.8rem;
+        gap: 8px;
+    }
+
+    #game-status span {
+        padding: 6px;
+        font-size: 0.75rem;
+    }
+
+    button {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    #reset-button {
+        max-width: 250px;
+    }
+
+    #theme-switch {
+        width: 42px;
+        height: 42px;
+        top: 12px;
+        right: 12px;
+    }
+
+    #theme-switch svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* Extra small screens (320px) */
+@media (max-width: 320px) {
+    h1 {
+        font-size: 1.2rem;
+        margin-top: 65px;
+    }
+
+    .grid {
+        max-width: 200px;
+    }
+
+    #game-status {
+        max-width: 200px;
+        gap: 6px;
+    }
+
+    #game-status span {
+        padding: 4px;
+        font-size: 0.7rem;
+    }
+
+    #reset-button {
+        max-width: 200px;
+        font-size: 0.8rem;
+    }
+
+    button {
+        padding: 6px 10px;
+    }
 }
