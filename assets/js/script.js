@@ -4,150 +4,101 @@ document.addEventListener('DOMContentLoaded', () => {
     let bombsAmount = 20;
     let squares = [];
     let isGameOver = false;
-    
-    let darkmode = localStorage.getItem('darkmode');
+
     const themeSwitch = document.getElementById('theme-switch');
-    
-    // Check for saved theme preference
+
+    // apply saved theme
     const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-        document.body.classList.add('darkmode');
-    }
-    
-    // Toggle theme on button click
-    themeSwitch.addEventListener('click', () => {
+    if (savedTheme === 'dark') document.body.classList.add('darkmode');
+
+    // toggle theme
+    themeSwitch?.addEventListener('click', () => {
         document.body.classList.toggle('darkmode');
         const currentTheme = document.body.classList.contains('darkmode') ? 'dark' : 'light';
         localStorage.setItem('theme', currentTheme);
     });
 
-    const enableDarkMode = () => {
-        document.body.classList.add('darkmode');
-        localStorage.setItem('darkmode', 'active');
-        darkmode = 'active';
-    }
-
-    const disableDarkMode = () => {
-        document.body.classList.remove('darkmode');
-        localStorage.setItem('darkmode', null);
-        darkmode = 'inactive';
-    }
-
-    if (darkmode === 'active') enableDarkMode();
-
-    themeSwitch.addEventListener('click', () => {
-        darkmode !== "active" ? enableDarkMode() : disableDarkMode();
-        darkmode = localStorage.getItem('darkmode');
-    });
-
-    // Create Board
     function createBoard() {
         const bombsArray = Array(bombsAmount).fill('bomb');
         const emptyArray = Array(width * width - bombsAmount).fill('valid');
         const gameArray = emptyArray.concat(bombsArray);
-        const shuffledArray = gameArray.sort(() => Math.random() - 0.5)
+        const shuffledArray = gameArray.sort(() => Math.random() - 0.5);
 
         for (let i = 0; i < width * width; i++) {
             const square = document.createElement('div');
             square.setAttribute('id', i);
-            square.classList.add(shuffledArray[i])
+            square.classList.add(shuffledArray[i]);
             grid.appendChild(square);
             squares.push(square);
 
-            //normal click
-            square.addEventListener('click', function(e) {
-                click(square);})
+            square.addEventListener('click', () => click(square));
         }
 
-
-        //add numbers
+        // add numbers
         for (let i = 0; i < squares.length; i++) {
-            let total = 0;
-            const isLeftEdge = (i % width === 0);
-            const isRightEdge = (i % width === width - 1);
+            if (!squares[i].classList.contains('valid')) continue;
 
-            if (squares[i].classList.contains('valid')) {
-                if ( i > 0 && !isLeftEdge && squares[i -1].classList.contains('bomb')) total ++;
-                if ( i > 9 && !isRightEdge && squares[i +1 -width].classList.contains('bomb')) total ++;
-                if ( i > 10 && squares[i -width].classList.contains('bomb')) total ++;
-                if ( i > 11 && !isLeftEdge && squares[i -1 -width].classList.contains('bomb')) total ++;
-                if ( i < 98 && !isRightEdge && squares[i +1].classList.contains('bomb')) total ++;
-                if ( i < 90 && !isLeftEdge && squares[i -1 +width].classList.contains('bomb')) total ++;
-                if ( i < 88 && !isRightEdge && squares[i +1 +width].classList.contains('bomb')) total ++;
-                if ( i < 89 && squares[i +width].classList.contains('bomb')) total ++;
-                squares[i].setAttribute('data', total);
-            }
+            let total = 0;
+            const isLeftEdge = i % width === 0;
+            const isRightEdge = i % width === width - 1;
+
+            if (i > 0 && !isLeftEdge && squares[i - 1].classList.contains('bomb')) total++;
+            if (i >= width && !isRightEdge && squares[i + 1 - width].classList.contains('bomb')) total++;
+            if (i >= width && squares[i - width].classList.contains('bomb')) total++;
+            if (i >= width && !isLeftEdge && squares[i - 1 - width].classList.contains('bomb')) total++;
+            if (i < width * width - 1 && !isRightEdge && squares[i + 1].classList.contains('bomb')) total++;
+            if (i < width * (width - 1) && !isLeftEdge && squares[i - 1 + width].classList.contains('bomb')) total++;
+            if (i < width * (width - 1) - 1 && !isRightEdge && squares[i + 1 + width].classList.contains('bomb')) total++;
+            if (i < width * (width - 1) && squares[i + width].classList.contains('bomb')) total++;
+
+            squares[i].setAttribute('data', total);
         }
+    }
+
+    function click(square) {
+        const currentId = Number(square.id);
+        if (isGameOver) return;
+        if (square.classList.contains('checked') || square.classList.contains('flag')) return;
+
+        if (square.classList.contains('bomb')) {
+            isGameOver = true;
+            console.log('Game Over');
+            revealBombs();
+            return;
+        }
+
+        const total = Number(square.getAttribute('data'));
+        if (total !== 0) {
+            square.classList.add('checked');
+            square.textContent = total;
+            return;
+        }
+
+        square.classList.add('checked');
+        checkSquare(currentId);
+    }
+
+    function checkSquare(currentId) {
+        const isLeftEdge = currentId % width === 0;
+        const isRightEdge = currentId % width === width - 1;
+
+        setTimeout(() => {
+            if (currentId > 0 && !isLeftEdge) click(squares[currentId - 1]);
+            if (currentId > width - 1 && !isRightEdge) click(squares[currentId + 1 - width]);
+            if (currentId >= width) click(squares[currentId - width]);
+            if (currentId >= width && !isLeftEdge) click(squares[currentId - 1 - width]);
+            if (currentId < width * width - 1 && !isRightEdge) click(squares[currentId + 1]);
+            if (currentId < width * (width - 1) && !isLeftEdge) click(squares[currentId - 1 + width]);
+            if (currentId < width * (width - 1) - 1 && !isRightEdge) click(squares[currentId + 1 + width]);
+            if (currentId < width * (width - 1)) click(squares[currentId + width]);
+        }, 10);
+    }
+
+    function revealBombs() {
+        squares.forEach(sq => {
+            if (sq.classList.contains('bomb')) sq.classList.add('checked');
+        });
     }
 
     createBoard();
 });
-
-//click on square actions
-function click(square) {
-    let currentId = square.id;
-    if (isGameOver) return
-    if (square.classLisst.contains('checked') || square.classList.contains('flag')) return
-    if (square.classList.contains('bomb')) {
-        console.log('Game Over');
-        return;
-    } else {
-        let total = square.getAttribute('data')
-        if (total !=0) {
-            square.classList.add('checked');
-            square.innerHTML = total;
-            return;
-        }
-        checkSquare(square, currentId)
-    }
-    square.classList.add('checked');
-}
-
-//check neighboring squares once square is clicked
-function checkSquare(square, currentId) {
-    const isLeftEdge = (currentId % width === 0);
-    const isRightEdge = (currentId % width === width -1); 
-    setTimeout(() => {
-        if (currentId > 0 && !isLeftEdge) {
-            const newId = squares[parseInt(currentId) -1].id;
-            const newSquare = document.getElementById(newId);
-            click(newSquare);
-        }
-        if (currentId > 9 && !isRightEdge) {
-            const newId = squares[parseInt(currentId) +1 -width].id;
-            const newSquare = document.getElementById(newId);
-            click(newSquare);
-        }
-        if (currentId > 10) {
-            const newId = squares[parseInt(currentId) -width].id;
-            const newSquare = document.getElementById(newId);
-            click(newSquare);
-        }
-        if (currentId > 11 && !isLeftEdge) {
-            const newId = squares[parseInt(currentId) -1 -width].id;
-            const newSquare = document.getElementById(newId);
-            click(newSquare);
-        }
-        if (currentId < 98 && !isRightEdge) {
-            const newId = squares[parseInt(currentId) +1].id;
-            const newSquare = document.getElementById(newId);
-            click(newSquare);
-        }
-        if (currentId < 90 && !isLeftEdge) {
-            const newId = squares[parseInt(currentId) -1 +width].id;
-            const newSquare = document.getElementById(newId);
-            click(newSquare);
-        }
-        if (currentId < 88 && !isRightEdge) {
-            const newId = squares[parseInt(currentId) +1 +width].id;
-            const newSquare = document.getElementById(newId);
-            click(newSquare);
-        }
-        if (currentId < 89) {
-            const newId = squares[parseInt(currentId) +width].id;
-            const newSquare = document.getElementById(newId);
-            click(newSquare);
-        }
-
-    }, 10);
-}
