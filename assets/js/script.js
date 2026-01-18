@@ -1,15 +1,15 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const grid = document.querySelector('.grid');
+document.addEventListener("DOMContentLoaded", () => {
+    const grid = document.querySelector(".grid");
     const width = 10;
     let bombsAmount = 20;
     let squares = [];
     let isGameOver = false;
     let flags = 0;
 
-    const themeSwitch = document.getElementById('theme-switch');
-    const resetButton = document.getElementById('reset-button');
-    const timerDisplay = document.getElementById('timer');
-    const minesCountDisplay = document.getElementById('mines-count');
+    const themeSwitch = document.getElementById("theme-switch");
+    const resetButton = document.getElementById("reset-button");
+    const timerDisplay = document.getElementById("timer");
+    const minesCountDisplay = document.getElementById("mines-count");
 
     let timerInterval = null;
     let timerStart = null;
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         timerInterval = null;
         timerStart = null;
         timerRunning = false;
-        if (timerDisplay) timerDisplay.textContent = 'Time: 0s';
+        if (timerDisplay) timerDisplay.textContent = "Time: 0s";
     };
 
     const updateTimer = () => {
@@ -49,41 +49,41 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // apply saved theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') document.body.classList.add('darkmode');
+    const savedTheme = localStorage.getItem("theme") || "light";
+    if (savedTheme === "dark") document.body.classList.add("darkmode");
 
     // toggle theme
-    themeSwitch?.addEventListener('click', () => {
-        document.body.classList.toggle('darkmode');
-        const currentTheme = document.body.classList.contains('darkmode') ? 'dark' : 'light';
-        localStorage.setItem('theme', currentTheme);
+    themeSwitch?.addEventListener("click", () => {
+        document.body.classList.toggle("darkmode");
+        const currentTheme = document.body.classList.contains("darkmode") ? "dark" : "light";
+        localStorage.setItem("theme", currentTheme);
     });
 
     function createBoard() {
         // clear old board
-        grid.innerHTML = '';
+        grid.innerHTML = "";
         squares = [];
         flags = 0;
         isGameOver = false;
         resetTimer();
         updateMinesCount();
 
-        const bombsArray = Array(bombsAmount).fill('bomb');
-        const emptyArray = Array(width * width - bombsAmount).fill('valid');
+        const bombsArray = Array(bombsAmount).fill("bomb");
+        const emptyArray = Array(width * width - bombsAmount).fill("valid");
         const gameArray = emptyArray.concat(bombsArray);
         const shuffledArray = gameArray.sort(() => Math.random() - 0.5);
 
         for (let i = 0; i < width * width; i++) {
-            const square = document.createElement('div');
-            square.setAttribute('id', i);
+            const square = document.createElement("div");
+            square.setAttribute("id", i);
             square.classList.add(shuffledArray[i]);
             grid.appendChild(square);
             squares.push(square);
 
             // left click
-            square.addEventListener('click', () => click(square));
+            square.addEventListener("click", () => click(square));
             // right click
-            square.addEventListener('contextmenu', (e) => {
+            square.addEventListener("contextmenu", (e) => {
                 e.preventDefault();
                 addFlag(square);
             });
@@ -97,41 +97,41 @@ document.addEventListener('DOMContentLoaded', () => {
             const isLeftEdge = i % width === 0;
             const isRightEdge = i % width === width - 1;
 
-            if (i > 0 && !isLeftEdge && squares[i - 1].classList.contains('bomb')) total++;
-            if (i >= width && !isRightEdge && squares[i + 1 - width].classList.contains('bomb')) total++;
-            if (i >= width && squares[i - width].classList.contains('bomb')) total++;
-            if (i >= width && !isLeftEdge && squares[i - 1 - width].classList.contains('bomb')) total++;
-            if (i < width * width - 1 && !isRightEdge && squares[i + 1].classList.contains('bomb')) total++;
-            if (i < width * (width - 1) && !isLeftEdge && squares[i - 1 + width].classList.contains('bomb')) total++;
-            if (i < width * (width - 1) - 1 && !isRightEdge && squares[i + 1 + width].classList.contains('bomb')) total++;
-            if (i < width * (width - 1) && squares[i + width].classList.contains('bomb')) total++;
+            if (i > 0 && !isLeftEdge && squares[i - 1].classList.contains("bomb")) total++;
+            if (i >= width && !isRightEdge && squares[i + 1 - width].classList.contains("bomb")) total++;
+            if (i >= width && squares[i - width].classList.contains("bomb")) total++;
+            if (i >= width && !isLeftEdge && squares[i - 1 - width].classList.contains("bomb")) total++;
+            if (i < width * width - 1 && !isRightEdge && squares[i + 1].classList.contains("bomb")) total++;
+            if (i < width * (width - 1) && !isLeftEdge && squares[i - 1 + width].classList.contains("bomb")) total++;
+            if (i < width * (width - 1) - 1 && !isRightEdge && squares[i + 1 + width].classList.contains("bomb")) total++;
+            if (i < width * (width - 1) && squares[i + width].classList.contains("bomb")) total++;
 
-            squares[i].setAttribute('data', total);
+            squares[i].setAttribute("data", total);
         }
     }
 
     function click(square) {
         if (isGameOver) return;
-        if (square.classList.contains('checked') || square.classList.contains('flag')) return;
+        if (square.classList.contains("checked") || square.classList.contains("flag")) return;
 
         // start timer on first valid click
         startTimer();
 
-        if (square.classList.contains('bomb')) {
+        if (square.classList.contains("bomb")) {
             gameOver();
             return;
         }
 
-        const total = Number(square.getAttribute('data'));
+        const total = Number(square.getAttribute("data"));
         if (total !== 0) {
-            square.classList.add('checked');
+            square.classList.add("checked");
             square.textContent = total;
             checkForWin();
             return;
         }
 
-        square.classList.add('checked');
-        checkSquare(Number(square.getAttribute('id')));
+        square.classList.add("checked");
+        checkSquare(Number(square.getAttribute("id")));
         checkForWin();
     }
 
@@ -153,9 +153,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function revealBombs() {
         squares.forEach((sq) => {
-            if (sq.classList.contains('bomb')) {
-                sq.classList.add('checked');
-                sq.textContent = '💣';
+            if (sq.classList.contains("bomb")) {
+                sq.classList.add("checked");
+                sq.textContent = "💣";
             }
         });
     }
@@ -165,36 +165,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isGameOver) return;
 
         // Count all valid (non-bomb) squares that are checked
-        const totalValid = squares.filter(sq => sq.classList.contains('valid')).length;
-        const checkedValid = squares.filter(sq => sq.classList.contains('valid') && sq.classList.contains('checked')).length;
+        const totalValid = squares.filter(sq => sq.classList.contains("valid")).length;
+        const checkedValid = squares.filter(sq => sq.classList.contains("valid") && sq.classList.contains("checked")).length;
 
         // Win if all non-bomb squares are revealed
         if (checkedValid === totalValid) {
             isGameOver = true;
             stopTimer();
-            alert('Congratulations! You win!');
+            alert("Congratulations! You win!");
         }
     }
 
     function gameOver() {
         isGameOver = true;
         stopTimer();
-        alert('Game Over! You hit a bomb.');
+        alert("Game Over! You hit a bomb.");
         revealBombs();
     }
 
     // add flag with right click
     function addFlag(square) {
         if (isGameOver) return;
-        if (!square.classList.contains('checked') && flags < bombsAmount) {
-            if (!square.classList.contains('flag')) {
-                square.classList.add('flag');
-                square.innerHTML = '🚩';
+        if (!square.classList.contains("checked") && flags < bombsAmount) {
+            if (!square.classList.contains("flag")) {
+                square.classList.add("flag");
+                square.innerHTML = "🚩";
                 flags++;
                 updateMinesCount();
             } else {
-                square.classList.remove('flag');
-                square.innerHTML = '';
+                square.classList.remove("flag");
+                square.innerHTML = "";
                 flags--;
                 updateMinesCount();
             }
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         createBoard();
     }
 
-    resetButton?.addEventListener('click', resetGame);
+    resetButton?.addEventListener("click", resetGame);
 
     createBoard();
 });
