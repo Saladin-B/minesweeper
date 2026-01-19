@@ -149,10 +149,18 @@ Please report any bugs via the **GitHub Issues** section in this repository.
 
 This project may contain code and/or written content assisted by **GitHub Copilot** and other AI tools.
 
+### Debugging Assistance
+
+A few bugs and edge cases in this project were debugged with the help of AI tools (e.g., GitHub Copilot / ChatGPT). These tools assisted in:
+- Inspecting and reasoning about game logic
+- Suggesting fixes for edge cases
+- Improving code readability in some functions
+
 ---
 
 **Owner:** [Saladin-B](https://github.com/Saladin-B)  
 **Repository:** [minesweeper](https://github.com/Saladin-B/minesweeper)
+
 
 
 
