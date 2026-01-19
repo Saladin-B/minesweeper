@@ -113,7 +113,12 @@ Language composition (approx.):
 
 ---
 
-## Deployment
+## Validation
+
+![html validator](https://github.com/user-attachments/assets/ef13df5b-c8ee-4fae-82d6-38dcfe7f3dee)
+![css validator](https://github.com/user-attachments/assets/c7b5b641-8852-4621-bf1a-87a9b5532e75)
+![javascript validator](https://github.com/user-attachments/assets/aab16b40-bf4b-4a57-99e2-f3d67da9af49)
+
 
 ---
 
@@ -148,7 +153,6 @@ This project may contain code and/or written content assisted by **GitHub Copilo
 
 **Owner:** [Saladin-B](https://github.com/Saladin-B)  
 **Repository:** [minesweeper](https://github.com/Saladin-B/minesweeper)
-
 
 
 
