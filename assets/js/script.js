@@ -1,211 +1,231 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Get reference to the grid container element
+    // Core game state and cached DOM nodes
     const grid = document.querySelector(".grid");
-    // Width of the board (10x10 grid)
     const width = 10;
-    // Total number of bombs on the board
     let bombsAmount = 20;
-    // Array to store all square elements
     let squares = [];
-    // Flag to track if the game is over
     let isGameOver = false;
-    // Number of flags currently placed
     let flags = 0;
 
-    // Theme switch button (for dark/light mode)
+    // UI controls and readouts: theme toggle, reset button, timer, and remaining mines display
     const themeSwitch = document.getElementById("theme-switch");
-    // Reset button to restart the game
     const resetButton = document.getElementById("reset-button");
-    // Timer display element
     const timerDisplay = document.getElementById("timer");
-    // Mines count display element
     const minesCountDisplay = document.getElementById("mines-count");
 
-    // Interval ID for the timer (used for clearInterval)
+    // Timer bookkeeping: interval handle, start timestamp, and running flag
     let timerInterval = null;
-    // Timestamp when the timer started
     let timerStart = null;
-    // Boolean to indicate if the timer is running
     let timerRunning = false;
 
-    // Update the remaining mines count shown to the user
+    // Reflect remaining mines in the UI
     const updateMinesCount = () => {
         if (minesCountDisplay) {
-            // Remaining mines = total bombs - flags placed
             minesCountDisplay.textContent = `Mines: ${bombsAmount - flags}`;
         }
     };
 
-    // Reset the timer back to 0 and stop it
     const resetTimer = () => {
-        clearInterval(timerInterval);  // Stop any running interval
+        clearInterval(timerInterval);
         timerInterval = null;
         timerStart = null;
         timerRunning = false;
-        // Reset the timer text display
         if (timerDisplay) timerDisplay.textContent = "Time: 0s";
     };
 
-    // Called every second to update the timer display
     const updateTimer = () => {
-        // If there's no display or start time, do nothing
         if (!timerDisplay || !timerStart) return;
-        // Calculate elapsed seconds since timerStart
         const seconds = Math.floor((Date.now() - timerStart) / 1000);
-        // Show elapsed time
         timerDisplay.textContent = `Time: ${seconds}s`;
     };
 
-    // Start the timer if it's not already running
     const startTimer = () => {
-        if (timerRunning) return; // Prevent multiple intervals
-        timerStart = Date.now();  // Record start time
+        if (timerRunning) return;
+        timerStart = Date.now();
         timerRunning = true;
-        // Update the timer every second
         timerInterval = setInterval(updateTimer, 1000);
     };
 
-    // Stop the timer without resetting the display
     const stopTimer = () => {
         clearInterval(timerInterval);
         timerInterval = null;
         timerRunning = false;
     };
 
-    // Get saved theme from localStorage (default to "light")
+    // apply saved theme
     const savedTheme = localStorage.getItem("theme") || "light";
-    // Apply dark mode class if saved theme is dark
     if (savedTheme === "dark") document.body.classList.add("darkmode");
 
-    // Toggle theme between light and dark when themeSwitch is clicked
+    // toggle theme
     themeSwitch?.addEventListener("click", () => {
-        // Toggle dark mode class on body
         document.body.classList.toggle("darkmode");
-        // Save current theme to localStorage
         const currentTheme = document.body.classList.contains("darkmode") ? "dark" : "light";
         localStorage.setItem("theme", currentTheme);
     });
 
-    // Create or recreate the game board
+    // Build a fresh board with bombs, numbers, and handlers
     function createBoard() {
-        // Clear old board from the DOM
+        // Clear any previous cells from the grid container
         grid.innerHTML = "";
-        // Reset squares array
         squares = [];
-        // Reset placed flags count
         flags = 0;
-        // Reset game-over state
         isGameOver = false;
-        // Reset and stop timer
         resetTimer();
-        // Update mines count display
         updateMinesCount();
 
-        // Create an array filled with "bomb" for the number of bombs
+        // Prepare board contents: exact bomb count + remaining safe cells, then shuffle for randomness
         const bombsArray = Array(bombsAmount).fill("bomb");
-        // Array filled with "valid" for non-bomb squares
         const emptyArray = Array(width * width - bombsAmount).fill("valid");
-        // Combine valid and bomb squares
         const gameArray = emptyArray.concat(bombsArray);
-        // Shuffle the combined array randomly
         const shuffledArray = gameArray.sort(() => Math.random() - 0.5);
 
-        // Generate each square and add to the grid
+        // Create every cell DOM node, tag it with its id and bomb/valid class, append to the grid, and keep a reference
         for (let i = 0; i < width * width; i++) {
-            // Create a div for the square
             const square = document.createElement("div");
-            // Assign ID equal to its index
             square.setAttribute("id", i);
-            // Add class "valid" or "bomb" from shuffledArray
             square.classList.add(shuffledArray[i]);
-            // Add the square to the grid container
             grid.appendChild(square);
-            // Store the square in the squares array
             squares.push(square);
 
-            // Add left-click event: reveal square
+            // left click
             square.addEventListener("click", () => click(square));
-            // Add right-click event: place/remove flag
+            // right click
             square.addEventListener("contextmenu", (e) => {
-                e.preventDefault();   // Prevent default context menu
-                addFlag(square);      // Toggle flag
+                e.preventDefault();
+                addFlag(square);
             });
         }
 
-        // Add numbers indicating neighboring bombs for all valid squares
+        // add numbers
+        // For every non-bomb square, count bombs in all 8 neighboring positions
         for (let i = 0; i < squares.length; i++) {
-            // Only add number for "valid" (non-bomb) squares
             if (!squares[i].classList.contains('valid')) continue;
 
-            let total = 0; // Count of neighboring bombs
-            const isLeftEdge = i % width === 0;           // True if at left edge
-            const isRightEdge = i % width === width - 1;  // True if at right edge
+            let total = 0;
+            const isLeftEdge = i % width === 0;
+            const isRightEdge = i % width === width - 1;
 
-            // Check each of the 8 neighboring positions (if in bounds),
-            // and increment total if that neighbor is a bomb.
-            if (i > 0 && !isLeftEdge && squares[i - 1].classList.contains("bomb")) total++;                               // Left
-            if (i >= width && !isRightEdge && squares[i + 1 - width].classList.contains("bomb")) total++;                 // Top-right
-            if (i >= width && squares[i - width].classList.contains("bomb")) total++;                                     // Top
-            if (i >= width && !isLeftEdge && squares[i - 1 - width].classList.contains("bomb")) total++;                  // Top-left
-            if (i < width * width - 1 && !isRightEdge && squares[i + 1].classList.contains("bomb")) total++;              // Right
-            if (i < width * (width - 1) && !isLeftEdge && squares[i - 1 + width].classList.contains("bomb")) total++;     // Bottom-left
-            if (i < width * (width - 1) - 1 && !isRightEdge && squares[i + 1 + width].classList.contains("bomb")) total++;// Bottom-right
-            if (i < width * (width - 1) && squares[i + width].classList.contains("bomb")) total++;                        // Bottom
+            // Check all eight neighbors (left, right, up, down, and diagonals)
+            if (i > 0 && !isLeftEdge && squares[i - 1].classList.contains("bomb")) total++;
+            if (i >= width && !isRightEdge && squares[i + 1 - width].classList.contains("bomb")) total++;
+            if (i >= width && squares[i - width].classList.contains("bomb")) total++;
+            if (i >= width && !isLeftEdge && squares[i - 1 - width].classList.contains("bomb")) total++;
+            if (i < width * width - 1 && !isRightEdge && squares[i + 1].classList.contains("bomb")) total++;
+            if (i < width * (width - 1) && !isLeftEdge && squares[i - 1 + width].classList.contains("bomb")) total++;
+            if (i < width * (width - 1) - 1 && !isRightEdge && squares[i + 1 + width].classList.contains("bomb")) total++;
+            if (i < width * (width - 1) && squares[i + width].classList.contains("bomb")) total++;
 
-            // Store the number of neighboring bombs as a data attribute
             squares[i].setAttribute("data", total);
         }
     }
 
-    // Handle left-click on a square
+    // Left-click reveals squares; kicks off timer on first move
     function click(square) {
-        // If game is over, ignore clicks
         if (isGameOver) return;
-        // If square is already checked or flagged, ignore
         if (square.classList.contains("checked") || square.classList.contains("flag")) return;
 
-        // Start timer on the first valid click
+        // start timer on first valid click
         startTimer();
 
-        // If the clicked square is a bomb, end the game
+        // Bomb clicked: end game immediately
         if (square.classList.contains("bomb")) {
             gameOver();
             return;
         }
 
-        // Get the number of surrounding bombs from data attribute
+        // If this square borders bombs, show the count and stop expanding
         const total = Number(square.getAttribute("data"));
         if (total !== 0) {
-            // If there are neighboring bombs, show the number and mark as checked
             square.classList.add("checked");
             square.textContent = total;
-            // After revealing, check if this causes a win
             checkForWin();
             return;
         }
 
-        // If there are no neighboring bombs, check the square and reveal neighbors
+        // Empty square: mark as revealed, flood-reveal neighbors, then re-check win state
         square.classList.add("checked");
-        // Recursively open surrounding squares
         checkSquare(Number(square.getAttribute("id")));
-        // Check if player has now won
         checkForWin();
     }
 
-    // Reveal neighboring squares for an empty square (0 neighboring bombs)
+    // Reveal neighboring squares recursively when zero adjacent bombs
     function checkSquare(currentId) {
-        const isLeftEdge = currentId % width === 0;          // At left edge?
-        const isRightEdge = currentId % width === width - 1; // At right edge?
+        const isLeftEdge = currentId % width === 0;
+        const isRightEdge = currentId % width === width - 1;
 
-        // Use a small timeout to avoid call stack overflow for large recursion
+        // Slight delay to avoid deep call stacks; recursively reveal all neighbors with edge guards
         setTimeout(() => {
-            // Check each neighboring position and trigger a click on it if valid.
-            if (currentId > 0 && !isLeftEdge) click(squares[currentId - 1]);                               // Left
-            if (currentId > width - 1 && !isRightEdge) click(squares[currentId + 1 - width]);              // Top-right
-            if (currentId >= width) click(squares[currentId - width]);                                     // Top
-            if (currentId >= width && !isLeftEdge) click(squares[currentId - 1 - width]);                  // Top-left
-            if (currentId < width * width - 1 && !isRightEdge) click(squares[currentId + 1]);              // Right
-            if (currentId < width * (width - 1) && !isLeftEdge) click(squares[currentId - 1 + width]);     // Bottom-left
-            if (currentId < width * (width - 1) - 1 && !isRightEdge) click(squares[currentId + 1 + width]);// Bottom-right
-            if (current*
-
+            if (currentId > 0 && !isLeftEdge) click(squares[currentId - 1]);
+            if (currentId > width - 1 && !isRightEdge) click(squares[currentId + 1 - width]);
+            if (currentId >= width) click(squares[currentId - width]);
+            if (currentId >= width && !isLeftEdge) click(squares[currentId - 1 - width]);
+            if (currentId < width * width - 1 && !isRightEdge) click(squares[currentId + 1]);
+            if (currentId < width * (width - 1) && !isLeftEdge) click(squares[currentId - 1 + width]);
+            if (currentId < width * (width - 1) - 1 && !isRightEdge) click(squares[currentId + 1 + width]);
+            if (currentId < width * (width - 1)) click(squares[currentId + width]);
+        }, 10);
+    }
+
+    // Expose all bombs after a loss
+    function revealBombs() {
+        squares.forEach((sq) => {
+            if (sq.classList.contains("bomb")) {
+                sq.classList.add("checked");
+                sq.textContent = "💣";
+            }
+        });
+    }
+
+    // check for win
+    function checkForWin() {
+        if (isGameOver) return;
+
+        // Count all valid (non-bomb) squares that are checked
+        const totalValid = squares.filter(sq => sq.classList.contains("valid")).length;
+        const checkedValid = squares.filter(sq => sq.classList.contains("valid") && sq.classList.contains("checked")).length;
+
+        // Win if all non-bomb squares are revealed
+        if (checkedValid === totalValid) {
+            isGameOver = true;
+            stopTimer();
+            alert("Congratulations! You win!");
+        }
+    }
+
+    // Handle loss: stop timer, notify, and reveal bombs
+    function gameOver() {
+        isGameOver = true;
+        stopTimer();
+        alert("Game Over! You hit a bomb.");
+        revealBombs();
+    }
+
+    // add flag with right click
+    function addFlag(square) {
+        if (isGameOver) return;
+        if (!square.classList.contains("checked") && flags < bombsAmount) {
+            if (!square.classList.contains("flag")) {
+                square.classList.add("flag");
+                square.innerHTML = "🚩";
+                flags++;
+                updateMinesCount();
+            } else {
+                square.classList.remove("flag");
+                square.innerHTML = "";
+                flags--;
+                updateMinesCount();
+            }
+        }
+    }
+
+    // Reset button starts a fresh game state
+    function resetGame() {
+        stopTimer();
+        resetTimer();
+        createBoard();
+    }
+
+    resetButton?.addEventListener("click", resetGame);
+
+    createBoard();
+});
